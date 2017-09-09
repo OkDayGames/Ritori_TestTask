@@ -1,0 +1,144 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id='canvas_container'></div>
+    <script type="text/javascript">
+        var ctx = createContext(window.innerWidth, window.innerHeight);
+        var canvas = ctx.canvas;
+        function createContext(width, height) {
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            return canvas.getContext("2d");
+        }
+        var element = document.getElementById('canvas_container');
+        element.appendChild(canvas);
+        
+        var clickDistance = 0;
+
+        document.getElementById("canvas_container").addEventListener("click", function( event ) {
+            event.target.textContent = "click count: " + event.detail;
+
+            clickDistance = getDistance(circle.X, circle.Y, event.x, event.y);
+
+            if(clickDistance < circle.R){  
+                circle.direction.x = (circle.X - event.x)/4;
+                circle.direction.y = (circle.Y - event.y)/2;
+            }
+
+        }, false);
+
+        var Vector2 = {'x': 0, 'y': 0};
+
+        function getDistance(x1, y1, x2, y2){
+            if(x1 > x2)
+                Vector2.x = x1 - x2;
+            else
+                Vector2.x = x2 - x1;
+
+            if(y1 > y2)
+                Vector2.y = y1 - y2;
+            else
+                Vector2.y = y2 - y1;
+
+            return Math.sqrt(Vector2.x * Vector2.x + Vector2.y * Vector2.y);
+        }
+
+        //---------------------------------------
+        function Circle(x, y, radius, speed, color){
+            this.X = x;
+            this.Y = y;
+            this.vX = 0;
+            this.vY = 0.5;
+            this.R = radius;
+            this.maxMagnitude = 15;
+            this.direction = {'x':speed, 'y':speed};
+            this.color = color;
+
+            this.Move = function(){
+                if(this.direction.y < -this.maxMagnitude){
+                    this.direction.y = -this.maxMagnitude;
+                }
+                if(this.direction.y > this.maxMagnitude){
+                    this.direction.y = this.maxMagnitude;
+                }
+                if(this.direction.x < -this.maxMagnitude){
+                    this.direction.x = -this.maxMagnitude;
+                }
+                if(this.direction.x > this.maxMagnitude){
+                    this.direction.x = this.maxMagnitude;
+                }
+
+                this.direction.y += this.vY;
+
+                if(this.direction.y > 0){
+                    this.direction.y -= 0.02;
+                }else{
+                    this.direction.y += 0.02;
+                }
+
+                this.X += this.direction.x;
+                this.Y += this.direction.y;
+            }
+            this.OnCollisionUpDown = function(){
+                this.direction.y *= -1;
+            }
+            this.OnCollisionLeftRight = function(){
+                this.direction.x *= -1;
+            }
+        }
+        var circle = new Circle(window.innerWidth/2, window.innerHeight/2, 100, 2, "red");
+
+        function drawCircle(){
+            ctx.beginPath();
+            ctx.arc(circle.X, circle.Y, circle.R, 0, 2 * Math.PI, false);
+            ctx.fillStyle = circle.color;
+            ctx.fill();
+            //ctx.stroke();
+        }
+
+        var distance;
+
+        function drawCanvas(){
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            distance = getDistance(circle.X, circle.Y, canvas.width, circle.Y);
+            if(circle.direction.x > 0){
+                if(distance < circle.R){
+                    circle.OnCollisionLeftRight();
+                }
+            }else if(circle.direction.x < 0){
+                distance = getDistance(circle.X, circle.Y, 0, circle.Y);
+                if(distance < circle.R){
+                    circle.OnCollisionLeftRight();
+                }
+            }
+
+            if(circle.direction.y > 0){
+                distance = getDistance(circle.X, circle.Y, circle.X, canvas.height);
+                if(distance < circle.R){
+                    circle.OnCollisionUpDown();
+                }
+            }else if(circle.direction.y < 0){
+                distance = getDistance(circle.X, circle.Y, circle.X, 0);
+                if(distance < circle.R){
+                    circle.OnCollisionUpDown();
+                }
+            }
+
+            circle.Move();
+            drawCircle();
+            setTimeout(drawCanvas,20);
+        }
+        
+        drawCanvas();
+    </script>
+</body>
+</html>
