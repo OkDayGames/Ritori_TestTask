@@ -110,9 +110,7 @@
 
         var distance;
 
-        function drawCanvas(){
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
+        function detectCollision(){
             distance = getDistance(circle.X, circle.Y, canvas.width, circle.Y);
             
             if(circle.direction.x > 0){
@@ -137,9 +135,15 @@
                     circle.OnCollisionUpDown();
                 }
             }
+        }
 
+        function drawCanvas(){
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            detectCollision();
             circle.Move();
             drawCircle();
+            
             setTimeout(drawCanvas,20);
         }
         
