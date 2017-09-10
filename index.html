@@ -55,7 +55,6 @@
         function Circle(x, y, radius, speed, color){
             this.X = x;
             this.Y = y;
-            this.vX = 0;
             this.vY = 0.5;
             this.R = radius;
             this.maxMagnitude = 15;
@@ -76,6 +75,7 @@
                     this.direction.x = this.maxMagnitude;
                 }
 
+                //gravity
                 this.direction.y += this.vY;
 
                 if(this.direction.y > 0){
@@ -88,7 +88,9 @@
                 this.Y += this.direction.y;
             }
             this.OnCollisionUpDown = function(){
+                //negative gravity
                 this.direction.y *= -1;
+                this.direction.y -= this.vY;
             }
             this.OnCollisionLeftRight = function(){
                 this.direction.x *= -1;
@@ -101,7 +103,6 @@
             ctx.arc(circle.X, circle.Y, circle.R, 0, 2 * Math.PI, false);
             ctx.fillStyle = circle.color;
             ctx.fill();
-            //ctx.stroke();
         }
 
         var distance;
